@@ -1,0 +1,34 @@
+{
+  "name": "mongo-bcrypt-user",
+  "version": "0.0.1",
+  "author": {
+    "name": "Tim Kuijsten",
+    "email": "tim@netsend.nl",
+    "url": "https://github.com/timkuijsten"
+  },
+  "license": "MIT",
+  "description": "Store and verify users with bcrypt passwords",
+  "keywords": [
+    "mongo",
+    "bcrypt",
+    "user",
+    "account"
+  ],
+  "main": "index.js",
+  "bugs": "https://github.com/timkuijsten/node-mongo-bcrypt-user/issues",
+  "dependencies": {
+    "mongodb": "1.4.x",
+    "bcrypt": "0.8.x"
+  },
+  "devDependencies": {
+    "mocha": ">=1.21.5",
+    "should": ">=4.0.4"
+  },
+  "scripts": {
+    "test": "mocha ./test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/timkuijsten/node-mongo-bcrypt-user.git"
+  }
+}
