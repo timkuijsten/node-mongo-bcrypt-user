@@ -26,7 +26,7 @@
 var should = require('should');
 var bcrypt = require('bcrypt');
 
-var User = require('../../lib/user');
+var User = require('../index');
 
 var db, coll;
 var databaseName = 'test_user';
