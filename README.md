@@ -70,39 +70,39 @@ Check if the password "raboof" is correct for user "foo" in the realm "bar".
 ### object oriented
 
 #### new User(coll, username, [realm])
-Create a new User object. Either for maintenance, verification or registration.
-A user may be bound to a realm.
-
 * coll {mongodb.Collection} the database that contains all user accounts
 * username {String} the name of the user to bind this instance to
 * realm {String, default: _default} optional realm the user belongs to
 
-#### user.exists(cb)
-Return whether or not the user already exists in the database.
+Create a new User object. Either for maintenance, verification or registration.
+A user may be bound to a realm.
 
+#### user.exists(cb)
 * cb {Function} first parameter will be an error or null, second parameter
   contains a boolean about whether this user exists or not.
 
-#### user.verify(password, cb)
-Verify if the given password is valid.
+Return whether or not the user already exists in the database.
 
+#### user.verify(password, cb)
 * password {String} the password to verify
 * cb {Function} first parameter will be an error or null, second parameter
   contains a boolean about whether the password is valid or not.
 
+Verify if the given password is valid.
+
 #### user.setPassword(password, cb)
+* password {String} the password to use
+* cb {Function} first parameter will be either an error object or null on success.
+
 Update the password.
 
 Note: the user has to exist in the database.
 
-* password {String} the password to use
-* cb {Function} first parameter will be either an error object or null on success.
-
 #### user.register(password, cb)
-Register a new user with a certain password.
-
 * password {String} the password to use, at least 6 characters
 * cb {Function} first parameter will be either an error object or null on success.
+
+Register a new user with a certain password.
 
 ### stateless
 
