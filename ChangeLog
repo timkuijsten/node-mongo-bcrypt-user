@@ -1,3 +1,11 @@
+2014.10.15, Version 0.0.2
+
+* remove redundant password length check (Sander Baas)
+* make tests work
+* small documentation fixes
+* rename User.isPasswordCorrect to User.verify
+
+
 2014.10.14, Version 0.0.1
 
 * initial release

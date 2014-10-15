@@ -1,6 +1,6 @@
 {
   "name": "mongo-bcrypt-user",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": {
     "name": "Tim Kuijsten",
     "email": "tim@netsend.nl",
@@ -17,8 +17,8 @@
   "main": "index.js",
   "bugs": "https://github.com/timkuijsten/node-mongo-bcrypt-user/issues",
   "dependencies": {
-    "mongodb": "1.4.x",
-    "bcrypt": "0.8.x"
+    "mongodb": "~1.4.19",
+    "bcrypt": "~0.8.0"
   },
   "devDependencies": {
     "mocha": "~1.21.5",
