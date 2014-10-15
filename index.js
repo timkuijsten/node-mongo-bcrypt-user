@@ -146,7 +146,7 @@ User.isPasswordCorrect = isPasswordCorrect;
  *
  * @param {mongodb.Collection} coll  the database that contains all user accounts
  * @param {String} username  the username to use
- * @param {String} password  the password to use
+ * @param {String} password  the password to use, at least 6 characters
  * @param {String, default: _default} [realm]  optional realm the user belongs to
  * @param {Function} cb  first parameter will be either an error object or null on
  *                       success.
@@ -157,13 +157,6 @@ function setPassword(coll, username, password, realm, cb) {
     realm = '_default';
   }
   _checkAllWithPassword(coll, username, password, realm, cb);
-
-  if (password.length < 6) {
-    process.nextTick(function() {
-      cb(new TypeError('password must be at least 6 characters'));
-    });
-    return;
-  }
 
   bcrypt.hash(password, 10, function(err, hash) {
     if (err) { cb(err); return; }
