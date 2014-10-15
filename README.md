@@ -118,6 +118,10 @@ each function invocation.
 #### User.setPassword(coll, username, password, [realm], cb)
 #### User.register(coll, username, password, [realm], cb)
 
+## Tests
+
+    $ mocha test
+
 ## License
 
 MIT, see LICENSE
