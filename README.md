@@ -73,39 +73,36 @@ Check if the password "raboof" is correct for user "foo" in the realm "bar".
 Create a new User object. Either for maintenance, verification or registration.
 A user may be bound to a realm.
 
-* @param {mongodb.Collection} coll  the database that contains all user accounts
-* @param {String} username  the name of the user to bind this instance to
-* @param {String, default: _default} [realm]  optional realm the user belongs to
+* coll {mongodb.Collection} the database that contains all user accounts
+* username {String} the name of the user to bind this instance to
+* realm {String, default: _default} optional realm the user belongs to
 
 #### user.exists(cb)
 Return whether or not the user already exists in the database.
 
-* @param {Function} cb  first parameter will be an error or null, second parameter
-                        contains a boolean about whether this user exists or not.
+* cb {Function} first parameter will be an error or null, second parameter
+  contains a boolean about whether this user exists or not.
 
 #### user.isPasswordCorrect(password, cb)
 Verify if the given password is valid.
 
-* @param {String} password  the password to verify
-* @param {Function} cb  first parameter will be an error or null, second parameter
-                        contains a boolean about whether the password is valid or
-                        not.
+* password {String} the password to verify
+* cb {Function} first parameter will be an error or null, second parameter
+  contains a boolean about whether the password is valid or not.
 
 #### user.setPassword(password, cb)
 Update the password.
 
 Note: the user has to exist in the database.
 
-* @param {String} password  the password to use
-* @param {Function} cb  first parameter will be either an error object or null on
-                        success.
+* password {String} the password to use
+* cb {Function} first parameter will be either an error object or null on success.
 
 #### user.register(password, cb)
 Register a new user with a certain password.
 
-* @param {String} password  the password to use
-* @param {Function} cb  first parameter will be either an error object or null on
-                        success.
+* password {String} the password to use, at least 6 characters
+* cb {Function} first parameter will be either an error object or null on success.
 
 ### stateless
 
@@ -120,7 +117,7 @@ each function invocation.
 
 ## Tests
 
-    $ mocha test
+First make sure ./test/test.json has the right parameters. Then run `mocha test`.
 
 ## License
 
