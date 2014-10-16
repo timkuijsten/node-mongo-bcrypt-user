@@ -17,7 +17,6 @@
   "main": "index.js",
   "bugs": "https://github.com/timkuijsten/node-mongo-bcrypt-user/issues",
   "dependencies": {
-    "mongodb": "~1.4.19",
     "bcrypt": "~0.8.0"
   },
   "devDependencies": {

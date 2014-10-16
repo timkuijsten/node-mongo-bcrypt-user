@@ -70,7 +70,7 @@ Check if the password "raboof" is correct for user "foo" in the realm "bar".
 ### object oriented
 
 #### new User(coll, username, [realm])
-* coll {mongodb.Collection} the database that contains all user accounts
+* coll {Object} instance of mongodb.Collection that contains all user accounts
 * username {String} the name of the user to bind this instance to
 * realm {String, default: _default} optional realm the user belongs to
 

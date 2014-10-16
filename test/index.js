@@ -46,8 +46,8 @@ after(database.disconnect.bind(database));
 
 describe('User', function () {
   describe('_checkAllWithPassword', function () {
-    it('should require coll to be an instance of mongodb.Collection', function() {
-      (function() { User._checkAllWithPassword({}); }).should.throw('coll must be an instance of mongodb.Collection');
+    it('should require coll to be an object', function() {
+      (function() { User._checkAllWithPassword(''); }).should.throw('coll must be an object');
     });
 
     it('should require username to be a string', function() {
@@ -95,8 +95,8 @@ describe('User', function () {
 
   describe('stateless', function () {
     describe('register', function () {
-      it('should require coll to be an instance of mongodb.Collection', function() {
-        (function() { User.register({}); }).should.throw('coll must be an instance of mongodb.Collection');
+      it('should require coll to be an object', function() {
+        (function() { User.register(''); }).should.throw('coll must be an object');
       });
       // assume all checks are handled by the previously tested User._checkAllWithPassword
 
@@ -130,8 +130,8 @@ describe('User', function () {
     });
 
     describe('exists', function () {
-      it('should require coll to be an instance of mongodb.Collection', function() {
-        (function() { User.exists({}); }).should.throw('coll must be an instance of mongodb.Collection');
+      it('should require coll to be an object', function() {
+        (function() { User.exists(''); }).should.throw('coll must be an object');
       });
       // assume all checks are handled by the previously tested User._checkAllWithPassword
 
@@ -165,8 +165,8 @@ describe('User', function () {
     });
 
     describe('verifyPassword', function () {
-      it('should require coll to be an instance of mongodb.Collection', function() {
-        (function() { User.verifyPassword({}); }).should.throw('coll must be an instance of mongodb.Collection');
+      it('should require coll to be an object', function() {
+        (function() { User.verifyPassword(''); }).should.throw('coll must be an object');
       });
       // assume all checks are handled by the previously tested User._checkAllWithPassword
 
@@ -208,8 +208,8 @@ describe('User', function () {
     });
 
     describe('setPassword', function () {
-      it('should require coll to be an instance of mongodb.Collection', function() {
-        (function() { User.setPassword({}); }).should.throw('coll must be an instance of mongodb.Collection');
+      it('should require coll to be an object', function() {
+        (function() { User.setPassword(''); }).should.throw('coll must be an object');
       });
       // assume all checks are handled by the previously tested User._checkAllWithPassword
 
@@ -256,8 +256,8 @@ describe('User', function () {
 
   describe('object oriented', function () {
     describe('constructor', function () {
-      it('should require coll to be an instance of mongodb.Collection', function() {
-        (function() { var user = new User({}); return user; }).should.throw('coll must be an instance of mongodb.Collection');
+      it('should require coll to be an object', function() {
+        (function() { var user = new User(''); return user; }).should.throw('coll must be an object');
       });
       // assume all checks are handled by the previously tested User._checkAllWithPassword
     });

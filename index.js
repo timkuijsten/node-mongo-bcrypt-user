@@ -21,13 +21,12 @@
 
 'use strict';
 
-var mongodb = require('mongodb');
 var bcrypt = require('bcrypt');
 
 /**
  * Check parameters and throw if type is incorrect, or length out of bounds.
  *
- * @param {mongodb.Collection} coll  throw if not a mongodb.Collection
+ * @param {Object} coll  throw if not an object
  * @param {String} username  throw if not a String
  * @param {String} password  throw if not a String
  * @param {String} realm  throw if not a String
@@ -35,7 +34,7 @@ var bcrypt = require('bcrypt');
  * @return {undefined}
  */
 function _checkAllWithPassword(coll, username, password, realm, cb) {
-  if (!(coll instanceof mongodb.Collection)) { throw new TypeError('coll must be an instance of mongodb.Collection'); }
+  if (typeof coll !== 'object') { throw new TypeError('coll must be an object'); }
   if (typeof username !== 'string') { throw new TypeError('username must be a string'); }
   if (typeof password !== 'string') { throw new TypeError('password must be a string'); }
   if (typeof realm !== 'string') { throw new TypeError('realm must be a string'); }
@@ -52,7 +51,7 @@ function _checkAllWithPassword(coll, username, password, realm, cb) {
  * Create a new User object. Either for maintenance, verification or registration.
  * A user may be bound to a realm.
  *
- * @param {mongodb.Collection} coll  the database that contains all user accounts
+ * @param {Object} coll  the database that contains all user accounts
  * @param {String} username  the name of the user to bind this instance to
  * @param {String, default: _default} [realm]  optional realm the user belongs to
  */
@@ -80,7 +79,7 @@ User._checkAllWithPassword = _checkAllWithPassword;
 /**
  * Return whether or not the user already exists in the database.
  *
- * @param {mongodb.Collection} coll  the database that contains all user accounts
+ * @param {Object} coll  the database that contains all user accounts
  * @param {String} username  the username to check
  * @param {String, default: _default} [realm]  optional realm the user belongs to
  * @param {Function} cb  first parameter will be an error or null, second parameter
@@ -109,7 +108,7 @@ User.exists = exists;
 /**
  * Verify if the given password is valid for the given username.
  *
- * @param {mongodb.Collection} coll  the database that contains all user accounts
+ * @param {Object} coll  the database that contains all user accounts
  * @param {String} username  the username to use
  * @param {String} password  the password to verify
  * @param {String, default: _default} [realm]  optional realm the user belongs to
@@ -144,7 +143,7 @@ User.verifyPassword = verifyPassword;
  *
  * Note: the user has to exist in the database.
  *
- * @param {mongodb.Collection} coll  the database that contains all user accounts
+ * @param {Object} coll  the database that contains all user accounts
  * @param {String} username  the username to use
  * @param {String} password  the password to use, at least 6 characters
  * @param {String, default: _default} [realm]  optional realm the user belongs to
@@ -180,7 +179,7 @@ User.setPassword = setPassword;
 /**
  * Register a new user with a certain password.
  *
- * @param {mongodb.Collection} coll  the database that contains all user accounts
+ * @param {Object} coll  the database that contains all user accounts
  * @param {String} username  the username to use
  * @param {String} password  the password to use
  * @param {String, default: _default} [realm]  optional realm the user belongs to
