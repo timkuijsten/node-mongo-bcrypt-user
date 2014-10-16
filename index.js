@@ -117,7 +117,7 @@ User.exists = exists;
  *                       contains a boolean about whether the password is valid or
  *                       not.
  */
-function verify(coll, username, password, realm, cb) {
+function verifyPassword(coll, username, password, realm, cb) {
   if (typeof realm === 'function') {
     cb = realm;
     realm = '_default';
@@ -137,7 +137,7 @@ function verify(coll, username, password, realm, cb) {
     bcrypt.compare(password, user.password, cb);
   });
 }
-User.verify = verify;
+User.verifyPassword = verifyPassword;
 
 /**
  * Update the password for the given username.
@@ -230,18 +230,18 @@ User.prototype.exists = function(cb) {
 };
 
 /**
- * Wrapper around User.verify.
+ * Wrapper around User.verifyPassword.
  *
  * @param {String} password  the password to verify
  * @param {Function} cb  first parameter will be an error or null, second parameter
  *                       contains a boolean about whether the password is valid or
  *                       not.
  */
-User.prototype.verify = function(password, cb) {
+User.prototype.verifyPassword = function(password, cb) {
   if (typeof password !== 'string') { throw new TypeError('password must be a string'); }
   if (typeof cb !== 'function') { throw new TypeError('cb must be a function'); }
 
-  verify(this._coll, this._username, password, this._realm, cb);
+  verifyPassword(this._coll, this._username, password, this._realm, cb);
 };
 
 /**

@@ -25,7 +25,7 @@ Check if the password "raboof" is correct for user "foo" in the realm "bar".
     // same setup as previous example
 
     var user = new User(coll, 'foo', 'bar');
-    user.verify('raboof', function(err, correct) {
+    user.verifyPassword('raboof', function(err, correct) {
       if (err) { throw err; }
       if (correct === true) {
         console.log('password correct');
@@ -53,7 +53,7 @@ Check if the password "raboof" is correct for user "foo" in the realm "bar".
 
     // same setup as previous example
 
-    User.verify(coll, 'foo', 'raboof', 'bar', function(err, correct) {
+    User.verifyPassword(coll, 'foo', 'raboof', 'bar', function(err, correct) {
       if (err) { throw err; }
       if (correct === true) {
         console.log('password correct');
@@ -83,7 +83,7 @@ A user may be bound to a realm.
 
 Return whether or not the user already exists in the database.
 
-#### user.verify(password, cb)
+#### user.verifyPassword(password, cb)
 * password {String} the password to verify
 * cb {Function} first parameter will be an error or null, second parameter
   contains a boolean about whether the password is valid or not.
@@ -111,7 +111,7 @@ where the collection object, the username and optionally the realm are given at
 each function invocation.
 
 #### User.exists(coll, username, [realm], cb)
-#### User.verify(coll, username, password, [realm], cb)
+#### User.verifyPassword(coll, username, password, [realm], cb)
 #### User.setPassword(coll, username, password, [realm], cb)
 #### User.register(coll, username, password, [realm], cb)
 

@@ -164,18 +164,18 @@ describe('User', function () {
       });
     });
 
-    describe('verify', function () {
+    describe('verifyPassword', function () {
       it('should require coll to be an instance of mongodb.Collection', function() {
-        (function() { User.verify({}); }).should.throw('coll must be an instance of mongodb.Collection');
+        (function() { User.verifyPassword({}); }).should.throw('coll must be an instance of mongodb.Collection');
       });
       // assume all checks are handled by the previously tested User._checkAllWithPassword
 
       it('needs a user to exist', function(done) {
-        User.register(coll, 'foo', 'secr3t', 'verifyRealm', done);
+        User.register(coll, 'foo', 'secr3t', 'verifyPasswordRealm', done);
       });
 
       it('should find that the password is invalid', function(done) {
-        User.verify(coll, 'foo', 'secret', 'verifyRealm', function(err, valid) {
+        User.verifyPassword(coll, 'foo', 'secret', 'verifyPasswordRealm', function(err, valid) {
           if (err) { throw err; }
           should.strictEqual(valid, false);
           done();
@@ -183,7 +183,7 @@ describe('User', function () {
       });
 
       it('should find that the password is valid', function(done) {
-        User.verify(coll, 'foo', 'secr3t', 'verifyRealm', function(err, valid) {
+        User.verifyPassword(coll, 'foo', 'secr3t', 'verifyPasswordRealm', function(err, valid) {
           if (err) { throw err; }
           should.strictEqual(valid, true);
           done();
@@ -191,7 +191,7 @@ describe('User', function () {
       });
 
       it('should find that the password is invalid for non-existant users', function(done) {
-        User.verify(coll, 'foo2', 'secr3t', function(err, valid) {
+        User.verifyPassword(coll, 'foo2', 'secr3t', function(err, valid) {
           if (err) { throw err; }
           should.strictEqual(valid, false);
           done();
@@ -199,7 +199,7 @@ describe('User', function () {
       });
 
       it('should find that the password is invalid for users in non-existant realms', function(done) {
-        User.verify(coll, 'foo', 'secr3t', 'verifyRealm2', function(err, valid) {
+        User.verifyPassword(coll, 'foo', 'secr3t', 'verifyPasswordRealm2', function(err, valid) {
           if (err) { throw err; }
           should.strictEqual(valid, false);
           done();
@@ -298,12 +298,12 @@ describe('User', function () {
       });
     });
 
-    describe('verify', function () {
+    describe('verifyPassword', function () {
       // use previously created user
 
       it('should find that the password is invalid', function(done) {
         var user = new User(coll, 'baz', 'ooregister');
-        user.verify('secret', function(err, correct) {
+        user.verifyPassword('secret', function(err, correct) {
           if (err) { throw err; }
           should.strictEqual(correct, false);
           done();
@@ -312,7 +312,7 @@ describe('User', function () {
 
       it('should find that the password is valid', function(done) {
         var user = new User(coll, 'baz', 'ooregister');
-        user.verify('p4ssword', function(err, correct) {
+        user.verifyPassword('p4ssword', function(err, correct) {
           if (err) { throw err; }
           should.strictEqual(correct, true);
           done();
