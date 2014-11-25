@@ -21,7 +21,8 @@
 
 'use strict';
 
-var bcrypt = require('bcrypt');
+var util = require('util');
+var BcryptUser = require('bcrypt-user');
 
 /**
  * Check parameters and throw if type is incorrect, or length out of bounds.
@@ -35,16 +36,7 @@ var bcrypt = require('bcrypt');
  */
 function _checkAllWithPassword(coll, username, password, realm, cb) {
   if (typeof coll !== 'object') { throw new TypeError('coll must be an object'); }
-  if (typeof username !== 'string') { throw new TypeError('username must be a string'); }
-  if (typeof password !== 'string') { throw new TypeError('password must be a string'); }
-  if (typeof realm !== 'string') { throw new TypeError('realm must be a string'); }
-  if (typeof cb !== 'function') { throw new TypeError('cb must be a function'); }
-
-  if (username.length < 2) { throw new Error('username must be at least 2 characters'); }
-  if (username.length > 128) { throw new Error('username can not exceed 128 characters'); }
-  if (password.length < 6) { throw new TypeError('password must be at least 6 characters'); }
-  if (realm.length < 1) { throw new Error('realm must be at least 1 character'); }
-  if (realm.length > 128) { throw new Error('realm can not exceed 128 characters'); }
+  BcryptUser._checkAllWithPassword(coll, username, password, realm, cb);
 }
 
 /**
@@ -62,10 +54,28 @@ function User(coll, username, realm) {
 
   _checkAllWithPassword(coll, username, 'xxxxxx', realm, function() {});
 
-  this._coll = coll;
+  // setup a resolver
+  var db = {
+    find: coll.findOne.bind(coll),
+    insert: coll.insert.bind(coll),
+    updateHash: function(lookup, hash, cb) {
+      coll.update(lookup, { $set: { password: hash } }, function(err, updated) {
+        if (err) { cb(err); return; }
+
+        if (updated !== 1) { cb(new Error('failed to update password')); return; }
+
+        cb(null);
+      });
+    }
+  };
+
+  BcryptUser.call(this, db, username, realm);
+
+  this._db = db;
   this._realm = realm;
   this._username = username;
 }
+util.inherits(User, BcryptUser);
 module.exports = User;
 
 User._checkAllWithPassword = _checkAllWithPassword;
@@ -90,18 +100,9 @@ function exists(coll, username, realm, cb) {
     cb = realm;
     realm = '_default';
   }
-  _checkAllWithPassword(coll, username, 'xxxxxx', realm, cb);
 
-  var lookup = {
-    realm: realm,
-    username: username
-  };
-
-  coll.findOne(lookup, function(err, user) {
-    if (err) { cb(err); return; }
-    if (user) { cb(null, true); return; }
-    cb(null, false);
-  });
+  var user = new User(coll, username, realm);
+  user.exists(cb);
 }
 User.exists = exists;
 
@@ -121,20 +122,9 @@ function verifyPassword(coll, username, password, realm, cb) {
     cb = realm;
     realm = '_default';
   }
-  _checkAllWithPassword(coll, username, password, realm, cb);
 
-  var lookup = {
-    realm: realm,
-    username: username
-  };
-
-  coll.findOne(lookup, function(err, user) {
-    if (err) { cb(err); return; }
-
-    if (!user) { cb(null, false); return; }
-
-    bcrypt.compare(password, user.password, cb);
-  });
+  var user = new User(coll, username, realm);
+  user.verifyPassword(password, cb);
 }
 User.verifyPassword = verifyPassword;
 
@@ -155,24 +145,9 @@ function setPassword(coll, username, password, realm, cb) {
     cb = realm;
     realm = '_default';
   }
-  _checkAllWithPassword(coll, username, password, realm, cb);
 
-  bcrypt.hash(password, 10, function(err, hash) {
-    if (err) { cb(err); return; }
-
-    var lookup = {
-      realm: realm,
-      username: username
-    };
-
-    coll.update(lookup, { $set: { password: hash } }, function(err, updated) {
-      if (err) { cb(err); return; }
-
-      if (updated !== 1) { cb(new Error('failed to update password')); return; }
-
-      cb(null);
-    });
-  });
+  var user = new User(coll, username, realm);
+  user.setPassword(password, cb);
 }
 User.setPassword = setPassword;
 
@@ -191,84 +166,8 @@ function register(coll, username, password, realm, cb) {
     cb = realm;
     realm = '_default';
   }
-  _checkAllWithPassword(coll, username, password, realm, cb);
 
-  var user = {
-    realm: realm,
-    username: username
-  };
-
-  exists(coll, username, realm, function(err, doesExist) {
-    if (doesExist) { cb(new Error('username already exists')); return; }
-
-    coll.insert(user, function(err) {
-      if (err) { cb(err); return; }
-
-      setPassword(coll, username, password, realm, cb);
-    });
-  });
+  var user = new User(coll, username, realm);
+  user.register(password, cb);
 }
 User.register = register;
-
-
-/////////////////////////////////////////
-//// Object methods of each function ////
-/////////////////////////////////////////
-
-
-/**
- * Wrapper around User.exists.
- *
- * @param {Function} cb  first parameter will be an error or null, second parameter
- *                       contains a boolean about whether this user exists.
- */
-User.prototype.exists = function(cb) {
-  if (typeof cb !== 'function') { throw new TypeError('cb must be a function'); }
-
-  exists(this._coll, this._username, this._realm, cb);
-};
-
-/**
- * Wrapper around User.verifyPassword.
- *
- * @param {String} password  the password to verify
- * @param {Function} cb  first parameter will be an error or null, second parameter
- *                       contains a boolean about whether the password is valid or
- *                       not.
- */
-User.prototype.verifyPassword = function(password, cb) {
-  if (typeof password !== 'string') { throw new TypeError('password must be a string'); }
-  if (typeof cb !== 'function') { throw new TypeError('cb must be a function'); }
-
-  verifyPassword(this._coll, this._username, password, this._realm, cb);
-};
-
-/**
- * Wrapper around User.setPassword.
- *
- * Note: the user has to exist in the database.
- *
- * @param {String} password  the password to use
- * @param {Function} cb  first parameter will be either an error object or null on
- *                       success.
- */
-User.prototype.setPassword = function(password, cb) {
-  if (typeof password !== 'string') { throw new TypeError('password must be a string'); }
-  if (typeof cb !== 'function') { throw new TypeError('cb must be a function'); }
-
-  setPassword(this._coll, this._username, password, this._realm, cb);
-};
-
-/**
- * Wrapper around User.register.
- *
- * @param {String} password  the password to use
- * @param {Function} cb  first parameter will be either an error object or null on
- *                       success.
- */
-User.prototype.register = function(password, cb) {
-  if (typeof password !== 'string') { throw new TypeError('password must be a string'); }
-  if (typeof cb !== 'function') { throw new TypeError('cb must be a function'); }
-
-  register(this._coll, this._username, password, this._realm, cb);
-};
