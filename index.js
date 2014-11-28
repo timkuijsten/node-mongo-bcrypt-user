@@ -40,8 +40,7 @@ function _checkAllWithPassword(coll, username, password, realm, cb) {
 }
 
 /**
- * Create a new User object. Either for maintenance, verification or registration.
- * A user may be bound to a realm.
+ * Store and verify users with bcrypt passwords located in a mongodb collection.
  *
  * @param {Object} coll  the database that contains all user accounts
  * @param {String} username  the name of the user to bind this instance to
@@ -79,95 +78,3 @@ util.inherits(User, BcryptUser);
 module.exports = User;
 
 User._checkAllWithPassword = _checkAllWithPassword;
-
-
-/////////////////////////////
-//// Stateless functions ////
-/////////////////////////////
-
-
-/**
- * Return whether or not the user already exists in the database.
- *
- * @param {Object} coll  the database that contains all user accounts
- * @param {String} username  the username to check
- * @param {String, default: _default} [realm]  optional realm the user belongs to
- * @param {Function} cb  first parameter will be an error or null, second parameter
- *                       contains a boolean about whether this user exists or not.
- */
-function exists(coll, username, realm, cb) {
-  if (typeof realm === 'function') {
-    cb = realm;
-    realm = '_default';
-  }
-
-  var user = new User(coll, username, realm);
-  user.exists(cb);
-}
-User.exists = exists;
-
-/**
- * Verify if the given password is valid for the given username.
- *
- * @param {Object} coll  the database that contains all user accounts
- * @param {String} username  the username to use
- * @param {String} password  the password to verify
- * @param {String, default: _default} [realm]  optional realm the user belongs to
- * @param {Function} cb  first parameter will be an error or null, second parameter
- *                       contains a boolean about whether the password is valid or
- *                       not.
- */
-function verifyPassword(coll, username, password, realm, cb) {
-  if (typeof realm === 'function') {
-    cb = realm;
-    realm = '_default';
-  }
-
-  var user = new User(coll, username, realm);
-  user.verifyPassword(password, cb);
-}
-User.verifyPassword = verifyPassword;
-
-/**
- * Update the password for the given username.
- *
- * Note: the user has to exist in the database.
- *
- * @param {Object} coll  the database that contains all user accounts
- * @param {String} username  the username to use
- * @param {String} password  the password to use, at least 6 characters
- * @param {String, default: _default} [realm]  optional realm the user belongs to
- * @param {Function} cb  first parameter will be either an error object or null on
- *                       success.
- */
-function setPassword(coll, username, password, realm, cb) {
-  if (typeof realm === 'function') {
-    cb = realm;
-    realm = '_default';
-  }
-
-  var user = new User(coll, username, realm);
-  user.setPassword(password, cb);
-}
-User.setPassword = setPassword;
-
-/**
- * Register a new user with a certain password.
- *
- * @param {Object} coll  the database that contains all user accounts
- * @param {String} username  the username to use
- * @param {String} password  the password to use
- * @param {String, default: _default} [realm]  optional realm the user belongs to
- * @param {Function} cb  first parameter will be either an error object or null on
- *                       success.
- */
-function register(coll, username, password, realm, cb) {
-  if (typeof realm === 'function') {
-    cb = realm;
-    realm = '_default';
-  }
-
-  var user = new User(coll, username, realm);
-  user.register(password, cb);
-}
-User.register = register;
