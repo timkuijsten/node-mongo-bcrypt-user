@@ -1,3 +1,9 @@
+2014.11.28, Version 1.0.0
+
+* remove stateless mode
+* use bcrypt-user
+
+
 2014.10.16, Version 0.0.4
 
 * remove mongodb npm dependency
