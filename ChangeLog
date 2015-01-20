@@ -1,3 +1,9 @@
+2015.01.20, Version 1.0.1
+
+* relicense from MIT to ISC
+* changed minimal npm package bcrypt-user from 0.0.1 to 0.1.0 (Sander Baas)
+
+
 2014.11.28, Version 1.0.0
 
 * remove stateless mode

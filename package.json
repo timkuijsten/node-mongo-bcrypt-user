@@ -1,11 +1,12 @@
 {
   "name": "mongo-bcrypt-user",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "Tim Kuijsten",
     "email": "tim@netsend.nl",
     "url": "https://github.com/timkuijsten"
   },
+  "contributors": ["Sander Baas"],
   "license": "ISC",
   "description": "Store and verify users with bcrypt passwords",
   "keywords": [
