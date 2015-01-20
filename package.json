@@ -6,7 +6,7 @@
     "email": "tim@netsend.nl",
     "url": "https://github.com/timkuijsten"
   },
-  "license": "MIT",
+  "license": "ISC",
   "description": "Store and verify users with bcrypt passwords",
   "keywords": [
     "mongo",
