@@ -13,7 +13,7 @@ Create a new user named "foo" in the "user" collection with the password "secr3t
     var coll = db.collection('users');
 
     var user = new User(coll, 'foo');
-    user.register('secr3t', function(err) {
+    user.register('secr3t', function(err, usr) {
       if (err) { throw err; }
       console.log('user created');
     });
@@ -23,7 +23,7 @@ Check if the password "raboof" is correct for user "foo" in the realm "bar".
     // same setup as previous example
 
     var user = new User(coll, 'foo', 'bar');
-    user.verifyPassword('raboof', function(err, correct) {
+    user.verifyPassword('raboof', function(err, correct, usr) {
       if (err) { throw err; }
       if (correct === true) {
         console.log('password correct');
@@ -54,7 +54,8 @@ Return whether or not the user already exists in the database.
 #### user.verifyPassword(password, cb)
 * password {String} the password to verify
 * cb {Function} first parameter will be an error or null, second parameter
-  contains a boolean about whether the password is valid or not.
+  contains a boolean about whether the password is valid or not. Third parameter
+  constains the user object if the password is correct.
 
 Verify if the given password is valid.
 
@@ -69,6 +70,7 @@ Note: the user has to exist in the database.
 #### user.register(password, cb)
 * password {String} the password to use, at least 6 characters
 * cb {Function} first parameter will be either an error object or null on success.
+  Second parameter constains the user object that is created.
 
 Register a new user with a certain password.
 

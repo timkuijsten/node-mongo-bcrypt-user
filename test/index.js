@@ -98,20 +98,26 @@ describe('User', function () {
   describe('register', function () {
     it('should register', function(done) {
       var user = new User(coll, 'baz', 'ooregister');
-      user.register('p4ssword', function(err) {
+      user.register('p4ssword', function(err, usr) {
         should.strictEqual(err, null);
-        coll.findOne({ realm: 'ooregister', username: 'baz' }, function(err, usr) {
-          should.strictEqual(err, null);
-          should.strictEqual(usr.realm, 'ooregister');
-          should.strictEqual(usr.username, 'baz');
+        should.strictEqual(usr.realm, 'ooregister');
+        should.strictEqual(usr.username, 'baz');
 
-          // bcrypt password example: '$2a$10$VnQeImV1DVqtQ7hXa.Sgsug9cCLVa65W4jO09w.I5tXcuYRbRVevu'
-          should.strictEqual(usr.password.length, 60);
-          usr.password.should.match(/^\$2a\$10\$/);
+        // bcrypt password example: '$2a$10$VnQeImV1DVqtQ7hXa.Sgsug9cCLVa65W4jO09w.I5tXcuYRbRVevu'
+        should.strictEqual(usr.password.length, 60);
+        usr.password.should.match(/^\$2a\$10\$/);
 
-          bcrypt.compare('p4ssword', usr.password, function(err, res) {
-            if (err) { throw err; }
-            if (res !== true) { throw new Error('passwords don\'t match'); }
+        bcrypt.compare('p4ssword', usr.password, function(err, res) {
+          if (err) { throw err; }
+          if (res !== true) { throw new Error('passwords don\'t match'); }
+
+          // compare object saved in database with returned object
+          coll.findOne({ realm: 'ooregister', username: 'baz' }, function(err, usr2) {
+            should.strictEqual(err, null);
+            should.strictEqual(usr2.realm, usr.realm);
+            should.strictEqual(usr2.username, usr.username);
+            should.strictEqual(usr2.password, usr.password);
+
             done();
           });
         });
@@ -136,19 +142,31 @@ describe('User', function () {
 
     it('should find that the password is invalid', function(done) {
       var user = new User(coll, 'baz', 'ooregister');
-      user.verifyPassword('secret', function(err, correct) {
+      user.verifyPassword('secret', function(err, correct, usr) {
         if (err) { throw err; }
         should.strictEqual(correct, false);
+        should.strictEqual(usr, null);
+
         done();
       });
     });
 
     it('should find that the password is valid', function(done) {
       var user = new User(coll, 'baz', 'ooregister');
-      user.verifyPassword('p4ssword', function(err, correct) {
+      user.verifyPassword('p4ssword', function(err, correct, usr) {
         if (err) { throw err; }
         should.strictEqual(correct, true);
-        done();
+
+        coll.findOne({ username: 'baz', realm: 'ooregister' }, function(err, usr2) {
+          if (err) { throw err; }
+
+          // compare object saved in database with returned object
+          should.strictEqual(usr2.realm, usr.realm);
+          should.strictEqual(usr2.username, usr.username);
+          should.strictEqual(usr2.password, usr.password);
+
+          done();
+        });
       });
     });
   });
@@ -160,18 +178,19 @@ describe('User', function () {
       var user = new User(coll, 'baz', 'ooregister');
       user.setPassword('secret', function(err) {
         if (err) { throw err; }
-        coll.findOne({ username: 'baz', realm: 'ooregister' }, function(err, user) {
+        coll.findOne({ username: 'baz', realm: 'ooregister' }, function(err, usr) {
           should.strictEqual(err, null);
-          should.strictEqual(user.realm, 'ooregister');
-          should.strictEqual(user.username, 'baz');
+          should.strictEqual(usr.realm, 'ooregister');
+          should.strictEqual(usr.username, 'baz');
 
           // bcrypt password example: '$2a$10$VnQeImV1DVqtQ7hXa.Sgsug9cCLVa65W4jO09w.I5tXcuYRbRVevu'
-          should.strictEqual(user.password.length, 60);
-          user.password.should.match(/^\$2a\$10\$/);
+          should.strictEqual(usr.password.length, 60);
+          usr.password.should.match(/^\$2a\$10\$/);
 
-          bcrypt.compare('secret', user.password, function(err, res) {
+          bcrypt.compare('secret', usr.password, function(err, res) {
             if (err) { throw err; }
             if (res !== true) { throw new Error('passwords don\'t match'); }
+
             done();
           });
         });
