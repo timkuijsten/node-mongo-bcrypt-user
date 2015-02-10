@@ -69,7 +69,50 @@ function User(coll, username, realm) {
   this._realm = realm;
   this._username = username;
 }
+
+/**
+ * Register a new user with a certain password.
+ *
+ * @param {Object} coll  throw if not an object
+ * @param {String} username  the username to use
+ * @param {String} password  the password to use
+ * @param {String, default: _default} [realm]  optional realm the user belongs to
+ * @param {Function} cb  first parameter will be either an error object or null on
+ *                       success, second parameter will be either a user object or
+ *                       null on failure.
+ */
+function register(coll, username, password, realm, cb) {
+  if (typeof coll !== 'object') { throw new TypeError('coll must be an object'); }
+  if (typeof realm === 'function') {
+    cb = realm;
+    realm = '_default';
+  }
+
+  var user = new User(coll, username, realm);
+  user.register(password, function(err) {
+    if (err) { cb(err); return }
+
+    cb(null, user);
+  });
+}
+
+function find(coll, username, realm, cb) {
+  if (typeof coll !== 'object') { throw new TypeError('coll must be an object'); }
+  if (typeof realm === 'function') {
+    cb = realm;
+    realm = '_default';
+  }
+
+  var user = new User(coll, username, realm);
+  user.find(function(err) {
+    if (err) { cb(err); return }
+
+    cb(null, user);
+  });
+}
+
 util.inherits(User, BcryptUser);
 module.exports = User;
 
-User._checkAllWithPassword = _checkAllWithPassword;
+User.register = register;
+User.find = find;
