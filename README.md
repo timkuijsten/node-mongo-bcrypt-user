@@ -13,7 +13,7 @@ Create a new user named "foo" in the "user" collection with the password "secr3t
     var coll = db.collection('users');
 
     var user = new User(coll, 'foo');
-    user.register('secr3t', function(err, usr) {
+    user.register('secr3t', function(err) {
       if (err) { throw err; }
       console.log('user created');
     });
@@ -23,7 +23,7 @@ Check if the password "raboof" is correct for user "foo" in the realm "bar".
     // same setup as previous example
 
     var user = new User(coll, 'foo', 'bar');
-    user.verifyPassword('raboof', function(err, correct, usr) {
+    user.verifyPassword('raboof', function(err, correct) {
       if (err) { throw err; }
       if (correct === true) {
         console.log('password correct');
