@@ -89,7 +89,11 @@ function register(coll, username, password, realm, cb) {
   }
 
   var user = new User(coll, username, realm);
-  user.register(password, cb);
+  user.register(password, function(err) {
+    if (err) { cb(err); return }
+
+    cb(null, user);
+  });
 }
 
 function find(coll, username, realm, cb) {
@@ -100,12 +104,15 @@ function find(coll, username, realm, cb) {
   }
 
   var user = new User(coll, username, realm);
-  user.find(cb);
+  user.find(function(err) {
+    if (err) { cb(err); return }
+
+    cb(null, user);
+  });
 }
 
 util.inherits(User, BcryptUser);
 module.exports = User;
 
-User._checkAllWithPassword = _checkAllWithPassword;
 User.register = register;
 User.find = find;
