@@ -1,6 +1,6 @@
 {
   "name": "mongo-bcrypt-user",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "author": {
     "name": "Tim Kuijsten",
     "email": "tim@netsend.nl",
