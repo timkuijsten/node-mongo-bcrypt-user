@@ -1,3 +1,8 @@
+2015.02.13, Version 2.0.1
+
+* fix requiring bcrypt-user ~2.0.0
+
+
 2015.02.13, Version 2.0.0
 
 * big refactor and simpler API (in cooperation with Sander Baas)
