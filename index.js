@@ -74,12 +74,18 @@ User.register = function register(coll, username, password, realm, cb) {
     realm = '_default';
   }
 
-  var user = new User(coll, username, { realm: realm });
-  user.register(password, function(err) {
-    if (err) { cb(err); return; }
-
-    cb(null, user);
-  });
+  try {
+    var user = new User(coll, username, { realm: realm });
+    user.register(password, function(err) {
+      if (err) { cb(err); return; }
+      cb(null, user);
+    });
+  } catch(err) {
+    process.nextTick(function() {
+      cb(err);
+    });
+    return;
+  }
 };
 
 /**
@@ -98,10 +104,17 @@ User.find = function find(coll, username, realm, cb) {
     realm = '_default';
   }
 
-  var user = new User(coll, username, { realm: realm });
-  user.find(function(err) {
-    if (err) { cb(err); return; }
+  try {
+    var user = new User(coll, username, { realm: realm });
+    user.find(function(err) {
+      if (err) { cb(err); return; }
 
-    cb(null, user);
-  });
+      cb(null, user);
+    });
+  } catch(err) {
+    process.nextTick(function() {
+      cb(err);
+    });
+    return;
+  }
 };
