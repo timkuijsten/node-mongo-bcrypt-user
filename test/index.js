@@ -40,83 +40,34 @@ before(function(done) {
 after(database.disconnect.bind(database));
 
 describe('User', function () {
-  describe('_checkAllWithPassword', function () {
-    it('should require coll to be an object', function() {
-      (function() { User._checkAllWithPassword(''); }).should.throw('coll must be an object');
-    });
-
-    it('should require username to be a string', function() {
-      (function() { User._checkAllWithPassword(coll); }).should.throw('username must be a string');
-    });
-
-    it('should require password to be a string', function() {
-      (function() { User._checkAllWithPassword(coll, ''); }).should.throw('password must be a string');
-    });
-
-    it('should require realm to be a string', function() {
-      (function() { User._checkAllWithPassword(coll, '', ''); }).should.throw('realm must be a string');
-    });
-
-    it('should require cb to be a function', function() {
-      (function() { User._checkAllWithPassword(coll, '', '', ''); }).should.throw('cb must be a function');
-    });
-
-    it('should require username to be at least 2 characters', function() {
-      (function() { User._checkAllWithPassword(coll, 'a', '', '', function() {}); }).should.throw('username must be at least 2 characters');
-    });
-
-    it('should require username to not exceed 128 characters', function() {
-      var username = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-      (function() { User._checkAllWithPassword(coll, username, '', '', function() {}); }).should.throw('username can not exceed 128 characters');
-    });
-
-    it('should require password to be at least 6 characters', function() {
-      (function() { User._checkAllWithPassword(coll, 'foo', 'fubar', '', function() {}); }).should.throw('password must be at least 6 characters');
-    });
-
-    it('should require realm to be at least 1 character', function() {
-      (function() { User._checkAllWithPassword(coll, 'foo', 'raboof', '', function() {}); }).should.throw('realm must be at least 1 character');
-    });
-
-    it('should require realm to not exceed 128 characters', function() {
-      var realm = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-      (function() { User._checkAllWithPassword(coll, 'foo', 'raboof', realm, function() {}); }).should.throw('realm can not exceed 128 characters');
-    });
-
-    it('should not throw', function() {
-      User._checkAllWithPassword(coll, 'foo', 'raboof', 'bar', function() {});
-    });
-  });
-
   describe('constructor', function () {
     it('should require coll to be an object', function() {
-      (function() { var user = new User(''); return user; }).should.throw('coll must be an object');
+      (function() { User.find(''); }).should.throw('coll must be an object');
     });
-    // assume all checks are handled by the previously tested User._checkAllWithPassword
+    // assume all checks are handled by the bcrypt-user parent
   });
 
   describe('register', function () {
     it('should register', function(done) {
       User.register(coll, 'baz', 'p4ssword', 'ooregister', function(err, user) {
         should.strictEqual(err, null);
-        should.strictEqual(user.realm, 'ooregister');
-        should.strictEqual(user.username, 'baz');
+        should.strictEqual(user._realm, 'ooregister');
+        should.strictEqual(user._username, 'baz');
 
         // bcrypt password example: '$2a$10$VnQeImV1DVqtQ7hXa.Sgsug9cCLVa65W4jO09w.I5tXcuYRbRVevu'
-        should.strictEqual(user.password.length, 60);
-        user.password.should.match(/^\$2a\$10\$/);
+        should.strictEqual(user._password.length, 60);
+        user._password.should.match(/^\$2a\$10\$/);
 
-        bcrypt.compare('p4ssword', user.password, function(err, res) {
+        bcrypt.compare('p4ssword', user._password, function(err, res) {
           if (err) { throw err; }
           if (res !== true) { throw new Error('passwords don\'t match'); }
 
           // compare object saved in database with returned object
           coll.findOne({ realm: 'ooregister', username: 'baz' }, function(err, usr2) {
             should.strictEqual(err, null);
-            should.strictEqual(usr2.realm, user.realm);
-            should.strictEqual(usr2.username, user.username);
-            should.strictEqual(usr2.password, user.password);
-
+            should.strictEqual(usr2._realm, user.realm);
+            should.strictEqual(usr2._username, user.username);
+            should.strictEqual(usr2._password, user.password);
             done();
           });
         });
@@ -127,11 +78,10 @@ describe('User', function () {
   describe('find', function () {
     // use previously created user
     it('should find the user', function(done) {
-      var user = new User(coll, 'baz', 'ooregister');
       User.find(coll, 'baz', 'ooregister', function(err, user) {
         if (err) { throw err; }
-        should.strictEqual(user.realm, 'ooregister');
-        should.strictEqual(user.username, 'baz');
+        should.strictEqual(user._realm, 'ooregister');
+        should.strictEqual(user._username, 'baz');
         done();
       });
     });
@@ -142,10 +92,10 @@ describe('User', function () {
 
     it('should find that the password is invalid', function(done) {
       User.find(coll, 'baz', 'ooregister', function(err, user) {
+        if (err) { throw err; }
         user.verifyPassword('secret', function(err, correct) {
           if (err) { throw err; }
           should.strictEqual(correct, false);
-
           done();
         });
       });
@@ -153,8 +103,10 @@ describe('User', function () {
 
     it('should find that the password is valid', function(done) {
       User.find(coll, 'baz', 'ooregister', function(err, user) {
+        if (err) { throw err; }
         user.verifyPassword('p4ssword', function(err, correct) {
           if (err) { throw err; }
+
           should.strictEqual(correct, true);
 
           coll.findOne({ username: 'baz', realm: 'ooregister' }, function(err, usr2) {
@@ -163,7 +115,6 @@ describe('User', function () {
             // compare object saved in database with returned object
             should.strictEqual(usr2.realm, 'ooregister');
             should.strictEqual(usr2.username, 'baz');
-
             done();
           });
         });
@@ -176,6 +127,7 @@ describe('User', function () {
 
     it('should update the password', function(done) {
       User.find(coll, 'baz', 'ooregister', function(err, user) {
+        if (err) { throw err; }
         user.setPassword('secret', function(err) {
           if (err) { throw err; }
           coll.findOne({ username: 'baz', realm: 'ooregister' }, function(err, usr) {
@@ -190,7 +142,6 @@ describe('User', function () {
             bcrypt.compare('secret', usr.password, function(err, res) {
               if (err) { throw err; }
               if (res !== true) { throw new Error('passwords don\'t match'); }
-
               done();
             });
           });
@@ -200,6 +151,7 @@ describe('User', function () {
 
     it('should require that the user exists in the given realm (wrong realm)', function(done) {
       User.find(coll, 'baz', 'ooregister2', function(err, user) {
+        if (err) { throw err; }
         user.setPassword('secret', function(err) {
           should.strictEqual(err.message, 'failed to update password');
           done();
@@ -209,6 +161,7 @@ describe('User', function () {
 
     it('should require that the user exists in the given realm (wrong username)', function(done) {
       User.find(coll, 'baz', 'ooregister2', function(err, user) {
+        if (err) { throw err; }
         user.setPassword('secret', function(err) {
           should.strictEqual(err.message, 'failed to update password');
           done();

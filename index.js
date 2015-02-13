@@ -20,33 +20,20 @@ var util = require('util');
 var BcryptUser = require('bcrypt-user');
 
 /**
- * Check parameters and throw if type is incorrect, or length out of bounds.
- *
- * @param {Object} coll  throw if not an object
- * @param {String} username  throw if not a String
- * @param {String} password  throw if not a String
- * @param {String} realm  throw if not a String
- * @param {Function} cb  throw if not a Function
- * @return {undefined}
- */
-function _checkAllWithPassword(coll, username, password, realm, cb) {
-  if (typeof coll !== 'object') { throw new TypeError('coll must be an object'); }
-  BcryptUser._checkAllWithPassword(coll, username, password, realm, cb);
-}
-
-/**
  * Store and verify users with bcrypt passwords located in a mongodb collection.
  *
  * @param {Object} coll  the database that contains all user accounts
  * @param {String} username  the name of the user to bind this instance to
- * @param {String, default: _default} [realm]  optional realm the user belongs to
+ * @param {Object} [opts]  object containing optional parameters
+ *
+ * opts:
+ *  realm {String, default "_default"}  optional realm the user belongs to
+ *  debug {Boolean, default false} whether to do extra console logging or not
+ *  hide {Boolean, default false} whether to suppress errors or not (for testing)
  */
-function User(coll, username, realm) {
-  if (typeof realm === 'undefined') {
-    realm = '_default';
-  }
-
-  _checkAllWithPassword(coll, username, 'xxxxxx', realm, function() {});
+function User(coll, username, opts) {
+  if (typeof coll !== 'object') { throw new TypeError('coll must be an object'); }
+  if (typeof username !== 'string') { throw new TypeError('username must be a string'); }
 
   // setup a resolver
   var db = {
@@ -63,23 +50,19 @@ function User(coll, username, realm) {
     }
   };
 
-  BcryptUser.call(this, db, username, realm);
-
-  this._db = db;
-  this._realm = realm;
-  this._username = username;
+  BcryptUser.call(this, db, username, opts || {});
 }
 
 /**
- * Register a new user with a certain password.
+ * Create a new user with a certain password and save it to the database.
  *
- * @param {Object} coll  throw if not an object
+ * @param {Object} coll  instance of mongodb.Collection that contains all users
  * @param {String} username  the username to use
  * @param {String} password  the password to use
- * @param {String, default: _default} [realm]  optional realm the user belongs to
+ * @param {String, default "_default"} [realm]  optional realm the user belongs to
  * @param {Function} cb  first parameter will be either an error object or null on
  *                       success, second parameter will be either a user object or
- *                       null on failure.
+ *                       undefined on failure.
  */
 function register(coll, username, password, realm, cb) {
   if (typeof coll !== 'object') { throw new TypeError('coll must be an object'); }
@@ -88,14 +71,23 @@ function register(coll, username, password, realm, cb) {
     realm = '_default';
   }
 
-  var user = new User(coll, username, realm);
+  var user = new User(coll, username, { realm: realm });
   user.register(password, function(err) {
-    if (err) { cb(err); return }
+    if (err) { cb(err); return; }
 
     cb(null, user);
   });
 }
 
+/**
+ * Find and return a user from the database.
+ *
+ * @param {Object} coll  instance of mongodb.Collection that contains all users
+ * @param {String} username  the username to use
+ * @param {String, default "_default"} [realm]  optional realm the user belongs to
+ * @param {Function} cb  first parameter will be an error or null, second parameter
+ *                       will be the user object or undefined.
+ */
 function find(coll, username, realm, cb) {
   if (typeof coll !== 'object') { throw new TypeError('coll must be an object'); }
   if (typeof realm === 'function') {
@@ -103,9 +95,9 @@ function find(coll, username, realm, cb) {
     realm = '_default';
   }
 
-  var user = new User(coll, username, realm);
+  var user = new User(coll, username, { realm: realm });
   user.find(function(err) {
-    if (err) { cb(err); return }
+    if (err) { cb(err); return; }
 
     cb(null, user);
   });

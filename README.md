@@ -6,29 +6,26 @@ Store and verify users with bcrypt passwords located in a mongodb collection.
 
 Create a new user named "foo" in the "user" collection with the password "secr3t".
 
+    var assert = require('assert');
     var mongodb = require('mongodb');
     var User = require('mongo-bcrypt-user');
 
     // assume "db" is a mongodb.Db object
     var coll = db.collection('users');
 
-    User.register(coll, 'baz', 'ooregister', 'p4ssword', function(err, user) {
+    User.register(coll, 'foo', 'secr3t', function(err, user) {
       if (err) { throw err; }
       console.log('user created');
     });
 
-Check if the password "raboof" is correct for user "foo" in the realm "bar".
+Check if the password "secr3t" is correct for user "foo".
 
     // same setup as previous example
 
-    User.find(coll, 'baz', 'ooregister', function(err, user) {
-      user.verifyPassword('raboof', function(err, correct) {
+    User.find(coll, 'foo', function(err, user) {
+      user.verifyPassword('secr3t', function(err, correct) {
         if (err) { throw err; }
-        if (correct === true) {
-          console.log('password correct');
-        } else {
-          console.log('password incorrect');
-        }
+        assert(correct, true);
       });
     });
 
@@ -38,28 +35,34 @@ Check if the password "raboof" is correct for user "foo" in the realm "bar".
 
 ## API
 
-#### new User(coll, username, [realm])
-* coll {Object} instance of mongodb.Collection that contains all user accounts
-* username {String} the name of the user to bind this instance to
-* realm {String, default: _default} optional realm the user belongs to
+### User.register(coll, username, password, [realm], cb)
+* coll {Object} instance of mongodb.Collection that contains all users
+* username {String} the username to use
+* password {String} the password to use, at least 6 characters
+* [realm] {String, default "_default"} optional realm the user belongs to
+* cb {Function} first parameter will be an error or null, second parameter will be
+  the user object or undefined.
 
-Store and verify users with bcrypt passwords located in a mongodb collection.
+Factory method: create a new user with a certain password and save it to the
+database.
 
-#### user.exists(cb)
-* cb {Function} first parameter will be an error or null, second parameter
-  contains a boolean about whether this user exists or not.
+### User.find(coll, username, [realm], cb)
+* coll {Object} instance of mongodb.Collection that contains all users
+* username {String} the username to use
+* [realm] {String, default "_default"} optional realm the user belongs to
+* cb {Function} first parameter will be an error or null, second parameter will be
+  the user object or undefined.
 
-Return whether or not the user already exists in the database.
+Factory method: find and return a user from the database.
 
-#### user.verifyPassword(password, cb)
+### user.verifyPassword(password, cb)
 * password {String} the password to verify
 * cb {Function} first parameter will be an error or null, second parameter
-  contains a boolean about whether the password is valid or not. Third parameter
-  constains the user object if the password is correct.
+  contains a boolean about whether the password is valid or not.
 
 Verify if the given password is valid.
 
-#### user.setPassword(password, cb)
+### user.setPassword(password, cb)
 * password {String} the password to use
 * cb {Function} first parameter will be either an error object or null on success.
 
@@ -67,12 +70,21 @@ Update the password.
 
 Note: the user has to exist in the database.
 
-#### user.register(password, cb)
-* password {String} the password to use, at least 6 characters
-* cb {Function} first parameter will be either an error object or null on success.
-  Second parameter constains the user object that is created.
+### new User(coll, username, [opts])
+* coll {Object} instance of mongodb.Collection that contains all user accounts
+* username {String} the name of the user to bind this instance to
+* [opts] {Object} object containing optional parameters
 
-Register a new user with a certain password.
+opts:
+* realm {String, default "_default"}  optional realm the user belongs to
+* debug {Boolean, default false} whether to do extra console logging or not
+* hide {Boolean, default false} whether to suppress errors or not (for testing)
+
+
+Store and verify users with bcrypt passwords located in a mongodb collection.
+
+Note: don't use `new User` but one of the factory methods `register` or `find` to
+construct a new user object.
 
 ## Tests
 
