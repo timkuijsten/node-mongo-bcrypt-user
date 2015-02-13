@@ -53,6 +53,9 @@ function User(coll, username, opts) {
   BcryptUser.call(this, db, username, opts || {});
 }
 
+util.inherits(User, BcryptUser);
+module.exports = User;
+
 /**
  * Create a new user with a certain password and save it to the database.
  *
@@ -64,7 +67,7 @@ function User(coll, username, opts) {
  *                       success, second parameter will be either a user object or
  *                       undefined on failure.
  */
-function register(coll, username, password, realm, cb) {
+User.register = function register(coll, username, password, realm, cb) {
   if (typeof coll !== 'object') { throw new TypeError('coll must be an object'); }
   if (typeof realm === 'function') {
     cb = realm;
@@ -77,7 +80,7 @@ function register(coll, username, password, realm, cb) {
 
     cb(null, user);
   });
-}
+};
 
 /**
  * Find and return a user from the database.
@@ -88,7 +91,7 @@ function register(coll, username, password, realm, cb) {
  * @param {Function} cb  first parameter will be an error or null, second parameter
  *                       will be the user object or undefined.
  */
-function find(coll, username, realm, cb) {
+User.find = function find(coll, username, realm, cb) {
   if (typeof coll !== 'object') { throw new TypeError('coll must be an object'); }
   if (typeof realm === 'function') {
     cb = realm;
@@ -101,10 +104,4 @@ function find(coll, username, realm, cb) {
 
     cb(null, user);
   });
-}
-
-util.inherits(User, BcryptUser);
-module.exports = User;
-
-User.register = register;
-User.find = find;
+};
